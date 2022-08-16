@@ -221,22 +221,9 @@ public class App {
 
 # `refresh()`流程
 
+![refresh()](https://yulam-1308258423.cos.ap-guangzhou.myqcloud.com/note/refresh().png)
 
-
-
-
-
-
-
-
-
-
-这是最核心的方法，简单概括
-
-- 根据预定义的beanPostProcessor 对用户提供的config进行扫描，生成beanDefinition对象
-- 根据bd反射生成bean
-
-
+这是最核心的方法
 
 ```java
 /**
@@ -612,7 +599,85 @@ public class App {
 	}
 ```
 
+### `DefaultListableBeanFactory#preInstantiateSingletons`
 
+```java
+/**
+	 * Ensure that all non-lazy-init singletons are instantiated, also considering
+	 * 确保所有的非懒加载单例bean会被实例化
+	 * {@link org.springframework.beans.factory.FactoryBean FactoryBeans}.
+	 * Typically invoked at the end of factory setup, if desired.
+	 * @throws BeansException if one of the singleton beans could not be created.
+	 * Note: This may have left the factory with some beans already initialized!
+	 * Call {@link #destroySingletons()} for full cleanup in this case.
+	 * @see #destroySingletons()
+
+	 */
+	@Override
+	public void preInstantiateSingletons() throws BeansException {
+		if (logger.isTraceEnabled()) {
+			logger.trace("Pre-instantiating singletons in " + this);
+		}
+
+		// Iterate over a copy to allow for init methods which in turn register new bean definitions.
+		// While this may not be part of the regular factory bootstrap, it does otherwise work fine.
+		//获取容器中所有的definitionName
+		List<String> beanNames = new ArrayList<>(this.beanDefinitionNames);
+
+		// Trigger initialization of all non-lazy singleton beans...
+ 		for (String beanName : beanNames) {
+			//merge 父子的BeanDefinition
+			RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
+			// 非抽象、单例、非懒加载
+			if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
+				if (isFactoryBean(beanName)) {
+					//factoryBean使用这个
+					Object bean = getBean(FACTORY_BEAN_PREFIX + beanName);
+					if (bean instanceof FactoryBean) {
+						final FactoryBean<?> factory = (FactoryBean<?>) bean;
+						boolean isEagerInit;
+						if (System.getSecurityManager() != null && factory instanceof SmartFactoryBean) {
+							isEagerInit = AccessController.doPrivileged((PrivilegedAction<Boolean>)
+											((SmartFactoryBean<?>) factory)::isEagerInit,
+									getAccessControlContext());
+						}
+						else {
+							isEagerInit = (factory instanceof SmartFactoryBean &&
+									((SmartFactoryBean<?>) factory).isEagerInit());
+						}
+						if (isEagerInit) {
+							getBean(beanName);
+						}
+					}
+				}
+				else {
+					//不是工厂bean，getBean就是会触发初始化
+					getBean(beanName);
+				}
+			}
+		}
+
+		// Trigger post-initialization callback for all applicable beans...
+		for (String beanName : beanNames) {
+			Object singletonInstance = getSingleton(beanName);
+			// 如果是 SmartInitializingSingleton 则执行改接口的生命周期函数
+			if (singletonInstance instanceof SmartInitializingSingleton) {
+				final SmartInitializingSingleton smartSingleton = (SmartInitializingSingleton) singletonInstance;
+				if (System.getSecurityManager() != null) {
+					AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+						smartSingleton.afterSingletonsInstantiated();
+						return null;
+					}, getAccessControlContext());
+				}
+				else {
+					smartSingleton.afterSingletonsInstantiated();
+				}
+			}
+		}
+	}
+```
+
+这里的逻辑比较简单，因为最复杂的初始化逻辑在`getBean()` 里面涉及依赖注入、循环依赖，分下一章节记录。
 
  
 
