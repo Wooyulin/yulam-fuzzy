@@ -44,7 +44,11 @@ public class App {
 ### `BeanPostProcessor`
 
 - 原始的有两个方法，分别是初始化`Initialization` 前后两个扩展点，子类扩展`InstantiationAwareBeanPostProcessor` 实例化前后两个扩展点
-- 
+- 官方值得关注例子
+  - `AutowiredAnnotationBeanPostProcessor`内置,用于进行依赖注入属性（IOC）
+  - `ApplicationContextAwareProcessor`内置,用于回调实现了Aware接口,注入  某些对象
+  - `AspectJAwareAdvisorAutoProxyCreator`整合，用于实现aop 
+
 
 
 
