@@ -2,7 +2,7 @@
 
 
 
-![简明流程](https://yulam-1308258423.cos.ap-guangzhou.myqcloud.com/note/%E7%AE%80%E6%98%8E%E6%B5%81%E7%A8%8B.png)
+![简明流程](./spring-bean生命周期.png)
 
 大致分为四个分别为 实例化>属性赋值>实例化>销毁， 其中实例化前后会分别调用instantiationAwareBeanpostProcessor#before#after， 实例化前后会调用beanpostprocessor#before#after，
 
@@ -10,7 +10,7 @@
 
 # 源码分析
 
-![bean创建流程](https://yulam-1308258423.cos.ap-guangzhou.myqcloud.com/note/bean%E5%88%9B%E5%BB%BA%E6%B5%81%E7%A8%8B.png)
+![bean创建流程](./spring-bean初始化.png)
 
 ## doGetBean
 

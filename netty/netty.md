@@ -63,21 +63,21 @@
 ### 常见的方式
 
 - Java序列化
-- xml
-- json
-- protobuf
+- `xml`
+- `json`
+- `protobuf`
 
 
 
-# keepalive与idle监测
+# `keepalive`与idle监测
 
 ## idle空闲监测
 
 对方无应答的等待时间控制
 
-## keepalive
+## `keepalive`
 
-结合idle 与发起keepalive请求
+结合idle 与发起`keepalive`请求
 
 # Netty的锁
 
@@ -99,13 +99,13 @@
 
 ## 对分配内存进行预估
 
-- hashmap初始化容量，避免扩容
+- `hashmap`初始化容量，避免扩容
 
 ## 零拷贝
 
 - 使用逻辑组合，避免实际复制
-- 包装字节，代替实际复制 wrappedBuffer(bytes[])
-- 调用JDK的transferTo方法实 
+- 包装字节，代替实际复制 `wrappedBuffer(bytes[])`
+- 调用JDK的`transferTo`方法实 
 
 ## 堆外内存
 
